@@ -1,4 +1,4 @@
-const CACHE = 'notaseru-standalone-656f182c16';
+const CACHE = 'notaseru-standalone-766ff32bf2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.svg', './icon-512.svg'];
 
 self.addEventListener('install', (e) => {
