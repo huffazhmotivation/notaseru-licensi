@@ -1,4 +1,4 @@
-const CACHE = 'notaseru-standalone-fix-nota-20261031';
+const CACHE = 'notaseru-standalone-656f182c18-kolom5-kasir-fixnota';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.svg', './icon-512.svg'];
 
 self.addEventListener('install', (e) => {
