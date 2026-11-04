@@ -1599,12 +1599,30 @@ textarea.ksr-in{height:auto;padding:12px 14px;resize:none}
 .ksr-sh input[type=date]{min-height:46px}
 
 /* ===== Multi Toko / Brand ===== */
-.nsst-heroswitch{display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.nsst-heroswitch:active{opacity:.8}
-.nsst-heroswitch .nsst-txt{min-width:0}
-.nsst-heroswitch .hero-store{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw}
-.nsst-heroswitch{color:#fff}
-.nsst-heroswitch .nsst-chev{flex:none;opacity:.85}
+.hero-top.nsst-top{align-items:center;margin-bottom:12px}
+.nsst-heroswitch{display:flex;align-items:center;gap:12px;padding:8px 12px 8px 8px;border-radius:18px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);position:relative;z-index:1;margin-bottom:20px;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s ease,background .15s ease}
+.nsst-heroswitch:active{transform:scale(.985);background:rgba(255,255,255,.24)}
+.nsst-heroswitch .nsst-av{width:44px;height:44px;border-radius:14px;border:2px solid rgba(255,255,255,.6)}
+.nsst-txt{flex:1;min-width:0}
+.nsst-txt small{display:block;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:2px}
+.nsst-heroswitch .hero-store{font-size:18px;line-height:1.2;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nsst-chev{flex:none;width:24px;height:24px;padding:4px;box-sizing:border-box;border-radius:50%;background:rgba(255,255,255,.2);color:#fff}
+.ksr-hero-t.nsst-k{display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ksr-hero-t.nsst-k:active{opacity:.85}
+.ksr-hero-t.nsst-k .nsst-av{width:42px;height:42px;border-radius:13px;border:2px solid rgba(255,255,255,.6)}
+.ksr-hero-t.nsst-k .nsst-ktx{flex:1;min-width:0}
+.ksr-hero-t.nsst-k b{font-size:17.5px}
+.ksr-hero-t.nsst-k .nsst-chev{display:none}
+.ksr-hero-t.nsst-k .nsst-av{width:40px;height:40px}
+.ksr-hb{flex:none}
+.nsst-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 12px;border-radius:16px;border:1.5px solid var(--border,#ddd);background:var(--bg-card,#fff);color:var(--txt-1,#111);cursor:pointer;margin-bottom:8px;font-family:inherit}
+.nsst-opt:active{transform:scale(.99)}
+.nsst-opt .oi{flex:none;width:40px;height:40px;border-radius:12px;background:var(--primary-soft,#e8f3ff);color:var(--primary);display:flex;align-items:center;justify-content:center}
+.nsst-opt b{display:block;font-size:14px;font-weight:800}
+.nsst-opt span.s{display:block;font-size:12px;color:var(--txt-3,#777);margin-top:2px;line-height:1.4}
+.nsst-row input[type=checkbox]{flex:none;width:20px;height:20px;accent-color:var(--primary)}
+.nsst-note{font-size:12px;color:var(--txt-3,#777);line-height:1.5;padding:2px 4px 10px}
+.nsst-busy{opacity:.6;pointer-events:none}
 .nsst-av{flex:none;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;background-color:var(--primary);background-repeat:no-repeat;overflow:hidden;box-sizing:border-box}
 .nsst-av.img{background-color:#fff;border:1px solid rgba(0,0,0,.08)}
 .nsst-av.sm{width:34px;height:34px;border-radius:10px;font-size:15px}
@@ -2170,6 +2188,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if (id === active) { wr('ns3_activeStore', stores[0].id); location.reload(); }
       return true;
     },
+    idbNameFor: function (id) { return id === 'main' ? 'notaseru-kasir' : 'notaseru-kasir-' + id; },
+    ownKeys: ownKeys,
+    suffix: function (id, k) { return id === 'main' ? k.slice(4) : k.slice(('ns3_x_' + id + '_').length); },
+    newId: function () { return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); },
+    exists: function (id) { return stores.some(function (s) { return s.id === id; }); },
+    register: function (id) { if (!stores.some(function (s) { return s.id === id; })) { stores.push({ id: id, createdAt: Date.now() }); saveList(); } },
+    clearData: function (id) { ownKeys(id).forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} }); },
     clearActive: function () {
       ownKeys(active).forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
       try { indexedDB.deleteDatabase(NSStore.idbName()); } catch (e) {}
@@ -3245,12 +3270,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="sett-card">
         <div class="sett-row" onclick="backupData()">
           <div class="sett-ic" style="background:var(--success-soft);color:var(--success)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-          <div class="sett-content"><div class="sett-label">Backup Data</div><div class="sett-sub">Export ke file JSON</div></div>
+          <div class="sett-content"><div class="sett-label">Backup Data</div><div class="sett-sub">Export JSON · pilih toko ini atau semua toko</div></div>
           <div class="sett-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
         <div class="sett-row" onclick="document.getElementById('restoreInput').click()">
           <div class="sett-ic" style="background:var(--warning-soft);color:var(--warning)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-          <div class="sett-content"><div class="sett-label">Restore Data</div><div class="sett-sub">Import dari file backup</div></div>
+          <div class="sett-content"><div class="sett-label">Restore Data</div><div class="sett-sub">Import JSON · satu toko atau semua toko</div></div>
           <div class="sett-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
         <div class="sett-row" onclick="restoreAutoBackup()">
@@ -3260,7 +3285,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         </div>
         <div class="sett-row" onclick="confirmClear()">
           <div class="sett-ic" style="background:var(--danger-soft);color:var(--danger)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div>
-          <div class="sett-content"><div class="sett-label" style="color:var(--danger)">Hapus Semua Data</div><div class="sett-sub">Tidak dapat dibatalkan</div></div>
+          <div class="sett-content"><div class="sett-label" style="color:var(--danger)">Hapus Data Toko Ini</div><div class="sett-sub">Hanya toko yang aktif · tidak dapat dibatalkan</div></div>
           <div class="sett-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
       </div>
@@ -14139,12 +14164,12 @@ var PEN = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="c
 var TRASH = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
 var STORE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12v8h14v-8"/></svg>';
 
-var ov = null, mode = 'list';
+var ov = null, mode = 'list', pending = null;
 
 function close() { if (!ov) return; var o = ov; ov = null; o.classList.remove('on'); setTimeout(function () { o.remove(); }, 260); }
-function open() {
+function open(m) {
   if (ov) return;
-  mode = 'list';
+  mode = (typeof m === 'string') ? m : 'list';
   ov = document.createElement('div'); ov.className = 'nsst-ov';
   ov.innerHTML = '<div class="nsst-sh" role="dialog" aria-modal="true"></div>';
   ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
@@ -14155,8 +14180,11 @@ function open() {
 function render() {
   if (!ov) return;
   var sh = ov.firstChild, list = NS.list(), act = NS.activeId();
-  var h = '<div class="nsst-hd"><b>Toko &amp; Brand</b><button class="nsst-x" data-act="close" aria-label="Tutup">&times;</button></div>';
-  if (mode === 'add') {
+  var TITLES = { list: 'Toko &amp; Brand', add: 'Toko &amp; Brand', backup: 'Backup Data', restore: 'Restore Data' };
+  var h = '<div class="nsst-hd"><b>' + TITLES[mode] + '</b><button class="nsst-x" data-act="close" aria-label="Tutup">&times;</button></div>';
+  if (mode === 'backup') h += backupHTML();
+  else if (mode === 'restore') h += restoreHTML();
+  else if (mode === 'add') {
     h += '<div class="nsst-sub">Setiap toko punya data sendiri: nota, produk, kasir, logo, tanda tangan, dan pengaturan akun.</div>' +
       '<div class="nsst-body"><div class="nsst-form"><label class="l" for="nsstName">Nama toko / brand</label>' +
       '<input class="nsst-in" id="nsstName" maxlength="60" placeholder="mis. Kopi Senja" autocomplete="off">' +
@@ -14202,6 +14230,10 @@ document.addEventListener('click', function (e) {
     var go = function () { NS.remove(id); if (ov) { render(); refreshChrome(); } say('Toko dihapus'); };
     try { var p = autoBackupLocal('sebelum hapus toko', true); if (p && p.then) p.then(go, go); else go(); } catch (x) { go(); }
   }
+  else if (a === 'bk-one') doExport('one');
+  else if (a === 'bk-all') doExport('all');
+  else if (a === 'rs-new') doImport(false);
+  else if (a === 'rs-replace') doImport(true);
   else if (a === 'create') {
     var inp = document.getElementById('nsstName'), name = (inp && inp.value || '').trim();
     if (!name) { say('Isi nama toko dulu'); inp && inp.focus(); return; }
@@ -14218,21 +14250,27 @@ document.addEventListener('keydown', function (e) {
 });
 
 /* ---------- penempatan di UI ---------- */
+function setAv(id, inf) {
+  var el = document.getElementById(id); if (!el) return;
+  el.outerHTML = avatar(inf).replace('class="', 'id="' + id + '" class="');
+}
 function refreshChrome() {
   var inf = NS.info(NS.activeId(), true);
-  var av = document.getElementById('heroStoreAv'); if (av) av.outerHTML = avatar(inf).replace('class="', 'id="heroStoreAv" class="');
+  setAv('heroStoreAv', inf); setAv('ksrStoreAv', inf);
   var sc = document.getElementById('nsstSetCard');
   if (sc) sc.innerHTML = avatar(inf, 'lg') + '<div class="nsst-ri"><div class="nsst-rn">' + esc(inf.name) + '</div><div class="nsst-rs">' + NS.list().length + ' toko · ketuk untuk ganti / tambah</div></div><span class="nsst-pill">Kelola</span>';
   var ks = document.getElementById('ksrStore'); if (ks && !(window.NSKasir && NSKasir.state && NSKasir.state.cfg && NSKasir.state.cfg.name)) ks.textContent = inf.name;
 }
 function mount() {
-  // Dashboard: area nama toko jadi pemilih toko
+  // Dashboard: kartu toko aktif (avatar + nama + panah) di bawah baris sapaan
   var hs = document.getElementById('heroStoreName');
   if (hs && !document.querySelector('.nsst-heroswitch')) {
-    var wrap = hs.parentNode, inner = wrap.parentNode;
-    var sw = document.createElement('div'); sw.className = 'nsst-heroswitch'; sw.setAttribute('role', 'button'); sw.setAttribute('aria-label', 'Ganti toko');
-    sw.innerHTML = '<span id="heroStoreAv"></span><div class="nsst-txt"></div>' + CHEV;
-    inner.insertBefore(sw, wrap); sw.querySelector('.nsst-txt').appendChild(wrap);
+    var top = hs.parentNode.parentNode;
+    var pill = document.createElement('div'); pill.className = 'nsst-heroswitch'; pill.setAttribute('role', 'button'); pill.setAttribute('aria-label', 'Ganti toko');
+    pill.innerHTML = '<span id="heroStoreAv"></span><div class="nsst-txt"><small>Toko aktif</small></div>' + CHEV;
+    pill.querySelector('.nsst-txt').appendChild(hs);
+    top.classList.add('nsst-top');
+    top.parentNode.insertBefore(pill, top.nextSibling);
   }
   // Pengaturan: kartu Toko & Brand
   var ps = document.getElementById('page-settings');
@@ -14244,18 +14282,181 @@ function mount() {
       first.parentNode.insertBefore(sec, first);
     }
   }
-  // Kasir: tombol toko di header
-  var kh = document.querySelector('#ksr .ksr-hero-top');
-  if (kh && !kh.querySelector('[data-nsst]')) {
-    var b = document.createElement('button'); b.className = 'ksr-hb'; b.setAttribute('data-nsst', '1'); b.setAttribute('aria-label', 'Ganti toko'); b.title = 'Ganti toko / brand'; b.innerHTML = STORE;
-    kh.insertBefore(b, kh.querySelector('[data-a="swap"]') || kh.firstChild.nextSibling);
+  // Kasir: area nama toko di header jadi pemilih toko (tanpa tombol tambahan)
+  var kt = document.querySelector('#ksr .ksr-hero-t');
+  if (kt && !kt.classList.contains('nsst-k')) {
+    kt.classList.add('nsst-k'); kt.setAttribute('data-nsst', '1'); kt.setAttribute('role', 'button'); kt.setAttribute('aria-label', 'Ganti toko');
+    var tx = document.createElement('div'); tx.className = 'nsst-ktx';
+    while (kt.firstChild) tx.appendChild(kt.firstChild);
+    var av = document.createElement('span'); av.id = 'ksrStoreAv';
+    kt.appendChild(av); kt.appendChild(tx); kt.insertAdjacentHTML('beforeend', CHEV);
   }
   refreshChrome();
 }
+
+/* ---------- Backup & Restore: per toko / semua toko ---------- */
+var SKIP = { settingsDraft: 1, formDraft: 1, ksrCart: 1, invoicesCloudSnap: 1, invoicesCloudSnapV2: 1, syncPending: 1, guestMode: 1 };
+var FILE_VER = '4.0';
+function toast2(m) { say(m); }
+function idbOpen(name) {
+  return new Promise(function (res, rej) {
+    if (!window.indexedDB) return rej(new Error('no idb'));
+    var r = indexedDB.open(name, 1);
+    r.onupgradeneeded = function () { var d = r.result; ['products', 'sales'].forEach(function (n) { if (!d.objectStoreNames.contains(n)) d.createObjectStore(n, { keyPath: 'id' }); }); if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'k' }); };
+    r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); };
+  });
+}
+function idbAll(db, st) { return new Promise(function (res, rej) { var r = db.transaction(st).objectStore(st).getAll(); r.onsuccess = function () { res(r.result || []); }; r.onerror = function () { rej(r.error); }; }); }
+async function readKasir(id) {
+  try {
+    var db = await idbOpen(NS.idbNameFor(id));
+    var p = await idbAll(db, 'products'), s = await idbAll(db, 'sales'), m = (await idbAll(db, 'meta')).find(function (x) { return x.k === 'cfg'; });
+    db.close(); return { products: p, sales: s, cfg: m ? m.v : null };
+  } catch (e) { return null; }
+}
+async function writeKasir(id, k) {
+  var db = await idbOpen(NS.idbNameFor(id));
+  await new Promise(function (res, rej) {
+    var t = db.transaction(['products', 'sales', 'meta'], 'readwrite');
+    var P = t.objectStore('products'), S = t.objectStore('sales'), M = t.objectStore('meta');
+    P.clear(); S.clear(); M.clear();
+    (k.products || []).forEach(function (x) { if (x && x.id != null) P.put(x); });
+    (k.sales || []).forEach(function (x) { if (x && x.id != null) S.put(x); });
+    if (k.cfg) M.put({ k: 'cfg', v: k.cfg });
+    t.oncomplete = res; t.onerror = function () { rej(t.error); }; t.onabort = function () { rej(t.error); };
+  });
+  db.close();
+}
+async function exportStore(id) {
+  var ls = {};
+  NS.ownKeys(id).forEach(function (k) { var suf = NS.suffix(id, k); if (!SKIP[suf]) { try { ls[suf] = localStorage.getItem(k); } catch (e) {} } });
+  return { id: id, name: NS.info(id, true).name, ls: ls, kasir: await readKasir(id) };
+}
+function slug(s) { return String(s || 'toko').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'toko'; }
+function download(obj, fname) {
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: 'application/json' }));
+  a.download = fname; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+var today = function () { return new Date().toISOString().split('T')[0]; };
+async function doExport(scope) {
+  if (ov) ov.firstChild.classList.add('nsst-busy');
+  try {
+    if (scope === 'all') {
+      var arr = []; for (var s of NS.list()) arr.push(await exportStore(s.id));
+      download({ app: 'notaseru', type: 'multi', version: FILE_VER, exportedAt: new Date().toISOString(), activeId: NS.activeId(), stores: arr }, 'notaseru-backup-semua-toko-' + today() + '.json');
+      say('Backup ' + arr.length + ' toko berhasil');
+    } else {
+      var st = await exportStore(NS.activeId());
+      download({ app: 'notaseru', type: 'single', version: FILE_VER, exportedAt: new Date().toISOString(), store: st }, 'notaseru-backup-' + slug(st.name) + '-' + today() + '.json');
+      say('Backup "' + st.name + '" berhasil');
+    }
+  } catch (e) { console.error(e); say('Backup gagal'); }
+  close();
+}
+function totals(st) {
+  var n = function (k) { try { var v = JSON.parse((st.ls || {})[k] || '[]'); return Array.isArray(v) ? v.length : 0; } catch (e) { return 0; } };
+  return { inv: n('invoices'), prod: n('products') + (st.kasir && st.kasir.products ? st.kasir.products.length : 0), sales: st.kasir && st.kasir.sales ? st.kasir.sales.length : 0 };
+}
+var ICO_ONE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12v8h14v-8"/></svg>';
+var ICO_ALL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+function backupHTML() {
+  var act = NS.info(NS.activeId()), list = NS.list(), tinv = 0, tprod = 0;
+  list.forEach(function (s) { var i = NS.info(s.id); tinv += i.inv; tprod += i.prod; });
+  return '<div class="nsst-sub">Pilih isi file backup (JSON). Berisi nota, produk, data kasir, logo, tanda tangan &amp; semua pengaturan.</div><div class="nsst-body">' +
+    '<button class="nsst-opt" data-act="bk-one"><span class="oi">' + ICO_ONE + '</span><span><b>Toko ini saja</b><span class="s">' + esc(act.name) + ' · ' + act.inv + ' nota · ' + act.prod + ' produk</span></span></button>' +
+    (list.length > 1 ? '<button class="nsst-opt" data-act="bk-all"><span class="oi">' + ICO_ALL + '</span><span><b>Semua toko (' + list.length + ')</b><span class="s">Satu file untuk semua toko · ' + tinv + ' nota · ' + tprod + ' produk</span></span></button>' : '<div class="nsst-note">Kamu baru punya 1 toko. Kalau sudah menambah toko, di sini muncul pilihan "Semua toko".</div>') +
+    '</div><div class="nsst-ft"></div>';
+}
+function restoreHTML() {
+  if (!pending) return '';
+  var multi = pending.kind === 'multi', h = '';
+  h += '<div class="nsst-sub">' + (multi ? 'File ini berisi <b>' + pending.stores.length + ' toko</b>. Pilih toko yang mau diimpor.' : 'File ini berisi data toko <b>' + esc(pending.stores[0].name) + '</b>.') + '</div><div class="nsst-body">';
+  pending.stores.forEach(function (st, i) {
+    var t = totals(st);
+    h += '<label class="nsst-row">' + avatar({ id: st.id || ('i' + i), name: st.name, logo: pendingLogo(st), logoScale: 100, logoPosX: 50, logoPosY: 50 }) +
+      '<div class="nsst-ri"><div class="nsst-rn">' + esc(st.name) + '</div><div class="nsst-rs">' + t.inv + ' nota · ' + t.prod + ' produk · ' + t.sales + ' transaksi kasir</div></div>' +
+      '<input type="checkbox" data-i="' + i + '" checked></label>';
+  });
+  var act = esc(NS.info(NS.activeId(), true).name);
+  h += '</div><div class="nsst-ft">' +
+    '<div class="nsst-note">Pilih cara memasukkan data:</div>' +
+    '<button class="nsst-opt" data-act="rs-new"><span class="oi">' + ICO_ALL + '</span><span><b>Tambahkan sebagai toko baru</b><span class="s">Aman — data yang ada sekarang tidak diubah.</span></span></button>' +
+    '<button class="nsst-opt" data-act="rs-replace"><span class="oi" style="background:var(--warning-soft,#fdf2da);color:var(--warning,#f2a900)">' + ICO_ONE + '</span><span><b>' + (multi ? 'Pulihkan &amp; timpa toko yang sama' : 'Ganti data toko ini (' + act + ')') + '</b><span class="s">' + (multi ? 'Toko dengan ID sama ditimpa; yang belum ada ditambahkan. Toko lain tetap aman.' : 'Data toko aktif diganti isi file.') + '</span></span></button></div>';
+  return h;
+}
+function pendingLogo(st) { try { var s = JSON.parse((st.ls || {}).settings || '{}'); return s.logo || ''; } catch (e) { return ''; } }
+function normalize(d) {
+  if (!d || typeof d !== 'object') return null;
+  if (d.type === 'multi' && Array.isArray(d.stores) && d.stores.length) return { kind: 'multi', stores: d.stores.filter(function (s) { return s && s.ls; }) };
+  if (d.type === 'single' && d.store && d.store.ls) return { kind: 'single', stores: [d.store] };
+  if (d.invoices || d.settings || d.products || d.kasir || d.expenses) { // format lama (satu toko)
+    var ls = {}; ['invoices', 'expenses', 'settings', 'products', 'warehouses', 'stockLog'].forEach(function (k) { if (d[k] !== undefined) ls[k] = JSON.stringify(d[k]); });
+    return { kind: 'single', stores: [{ id: null, name: (d.settings && d.settings.storeName) || 'Toko hasil restore', ls: ls, kasir: d.kasir ? { products: d.kasir.products || [], sales: d.kasir.sales || [], cfg: d.kasir.cfg || null } : null }] };
+  }
+  return null;
+}
+async function applyStore(id, st) {
+  NS.clearData(id);
+  var ls = st.ls || {}, ok = true, sett = null;
+  Object.keys(ls).forEach(function (suf) {
+    if (SKIP[suf] || NS.GLOBAL[suf] || typeof ls[suf] !== 'string') return;
+    try { localStorage.setItem(NS.keyFor(id, suf), ls[suf]); } catch (e) { ok = false; }
+  });
+  if (!ok) { NS.clearData(id); return false; }
+  try { sett = JSON.parse(ls.settings || '{}') || {}; } catch (e) { sett = {}; }
+  if (!(sett.storeName || '').trim() && st.name) { sett.storeName = st.name; try { localStorage.setItem(NS.keyFor(id, 'settings'), JSON.stringify(sett)); } catch (e) {} }
+  if (st.kasir) { try { await writeKasir(id, st.kasir); } catch (e) { console.error(e); } }
+  return true;
+}
+function handleRestore(input) {
+  var f = input && input.files && input.files[0]; if (!f) return;
+  var r = new FileReader();
+  r.onload = function () {
+    var d = null; try { d = JSON.parse(r.result); } catch (e) {}
+    var n = normalize(d);
+    if (!n || !n.stores.length) { say('File backup tidak valid'); return; }
+    pending = n; mode = 'restore';
+    if (ov) render(); else open('restore');
+  };
+  r.onerror = function () { say('Gagal membaca file'); };
+  r.readAsText(f); input.value = '';
+}
+async function doImport(replace) {
+  if (!pending || !ov) return;
+  var boxes = ov.querySelectorAll('input[type=checkbox][data-i]'), chosen = [];
+  boxes.forEach(function (b) { if (b.checked) chosen.push(pending.stores[+b.getAttribute('data-i')]); });
+  if (!chosen.length) { say('Pilih minimal satu toko'); return; }
+  var multi = pending.kind === 'multi';
+  if (replace && !confirm(multi ? 'Toko dengan ID yang sama akan DITIMPA isi file.\n\nLanjutkan?' : 'Data toko "' + NS.info(NS.activeId(), true).name + '" akan DIGANTI isi file.\n\nLanjutkan?')) return;
+  ov.firstChild.classList.add('nsst-busy');
+  try { if (typeof autoBackupLocal === 'function') await autoBackupLocal('sebelum restore', true); } catch (e) {}
+  var firstNew = null, done = 0, full = false;
+  for (var i = 0; i < chosen.length; i++) {
+    var st = chosen[i], id;
+    if (replace && !multi) id = NS.activeId();
+    else if (replace && multi && st.id && /^[A-Za-z0-9]+$/.test(st.id)) id = st.id;
+    else id = NS.newId();
+    var existed = NS.exists(id);
+    var ok = await applyStore(id, st);
+    if (!ok) { full = true; if (!existed) NS.clearData(id); break; }
+    NS.register(id); if (!existed && !firstNew) firstNew = id; done++;
+  }
+  if (full) say('Penyimpanan penuh — sebagian data tidak masuk');
+  if (!done) { if (ov) ov.firstChild.classList.remove('nsst-busy'); return; }
+  try { sessionStorage.setItem('nsst_msg', 'Restore berhasil (' + done + ' toko)'); } catch (e) {}
+  if (firstNew && !replace) NS.switchTo(firstNew); else location.reload();
+}
+function installBackup() {
+  window.backupData = function () { open('backup'); };
+  window.handleRestore = handleRestore;
+}
+
 function init() {
+  installBackup(); setTimeout(installBackup, 800);
   mount();
   // kasir dibangun belakangan → coba lagi sebentar
-  var n = 0, iv = setInterval(function () { mount(); if (document.querySelector('#ksr [data-nsst]') || ++n > 40) clearInterval(iv); }, 150);
+  var n = 0, iv = setInterval(function () { mount(); if (document.querySelector('#ksr .nsst-k') || ++n > 40) clearInterval(iv); }, 150);
+  try { var pm = sessionStorage.getItem('nsst_msg'); if (pm) { sessionStorage.removeItem('nsst_msg'); setTimeout(function () { say(pm); }, 600); } } catch (x) {}
   var fresh = false; try { fresh = sessionStorage.getItem('nsst_new') === '1'; sessionStorage.removeItem('nsst_new'); } catch (x) {}
   if (fresh) setTimeout(function () {
     if (document.documentElement.classList.contains('kasir-mode')) { say('Toko baru siap. Atur logo & info di Mode Invoice › Pengaturan.'); return; }
