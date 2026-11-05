@@ -2159,7 +2159,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       var cur = readJSON(keyFor(active, 'settings'), {}) || {};
       var s = {};
       if (copyFromActive) {
-        for (var k in cur) { if (['logo', 'logoScale', 'logoPosX', 'logoPosY', 'signature', 'storeName'].indexOf(k) < 0) s[k] = cur[k]; }
+        for (var k in cur) { if (['logo', 'logoScale', 'logoPosX', 'logoPosY', 'signature', 'qris', 'storeName'].indexOf(k) < 0) s[k] = cur[k]; }
       } else {
         if (cur.darkMode) s.darkMode = cur.darkMode;
         if (cur.themeColor) s.themeColor = cur.themeColor;
@@ -2406,7 +2406,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <div class="filter-group">
       <div class="filter-group-label">Periode</div>
       <div class="segmented" id="invPeriodBar">
-        <div class="chip active" onclick="setInvPeriod('1m',this)">Bln Ini</div>
+        <div class="chip active" onclick="setInvPeriod('all',this)">Semua</div>
+        <div class="chip" onclick="setInvPeriod('1m',this)">Bln Ini</div>
         <div class="chip" onclick="setInvPeriod('3m',this)">3 Bln</div>
         <div class="chip" onclick="setInvPeriod('6m',this)">6 Bln</div>
         <div class="chip" onclick="setInvPeriod('1y',this)">1 Thn</div>
@@ -2918,6 +2919,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           Atur Posisi &amp; Crop Logo
         </button>
       </div>
+    </div>
+
+    <!-- QRIS -->
+    <div class="sett-section">
+      <div class="section-title" style="margin-bottom:12px">Gambar QRIS</div>
+      <div class="logo-area" onclick="document.getElementById('qrisInput').click()">
+        <img id="qrisPrev" alt="QRIS" style="display:none;width:130px;height:130px;object-fit:contain;margin:0 auto 8px;background:#fff;border-radius:10px;padding:4px;box-sizing:border-box">
+        <div class="logo-ph-ic" id="qrisPh"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M18 18h3v3h-3z"/></svg></div>
+        <div class="logo-txt" id="qrisTxt">Ketuk untuk upload gambar QRIS</div>
+      </div>
+      <input type="file" id="qrisInput" accept="image/*" style="display:none" onchange="uploadQris(this)">
+      <div id="qrisDelRow" style="display:none;padding:2px 2px 0">
+        <button type="button" class="logo-edit-btn" onclick="removeQris()">Hapus QRIS</button>
+      </div>
+      <div class="sett-sub" style="margin-top:8px;padding:0 2px">Otomatis tampil di nota (invoice) dan struk kasir, ukurannya menyesuaikan.</div>
     </div>
 
     <!-- Info Toko -->
@@ -3749,7 +3765,7 @@ let curPage = 'dashboard', prevPage = 'dashboard';
 let curInvId = null;
 let items = [];
 let invFilter = 'all';
-let invPeriod = '1m', invCustomFrom = null, invCustomTo = null;
+let invPeriod = 'all', invCustomFrom = null, invCustomTo = null;
 let selectMode = false;
 let selectedIds = new Set();
 
@@ -5679,6 +5695,7 @@ function deleteProduct(id) {
 // ── Filter periode daftar Nota (sama seperti filter periode di tab Keuangan) ──
 function getInvDateRange() {
   const now = new Date();
+  if (invPeriod === 'all') return { from: new Date(0), to: new Date(8640000000000000) };
   if (invPeriod === '1m') return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: new Date(now.getFullYear(), now.getMonth()+1, 0, 23, 59, 59, 999) };
   if (invPeriod === '3m') return { from: new Date(now.getFullYear(), now.getMonth()-2, 1), to: new Date(now.getFullYear(), now.getMonth()+1, 0, 23, 59, 59, 999) };
   if (invPeriod === '6m') return { from: new Date(now.getFullYear(), now.getMonth()-5, 1), to: new Date(now.getFullYear(), now.getMonth()+1, 0, 23, 59, 59, 999) };
@@ -7137,8 +7154,14 @@ function buildPreview(inv, targetId = 'invoicePreview') {
     ? `${inv.dp > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:10px 14px;background:${C.dark};border-radius:6px"><span style="font-size:13px;font-weight:700;color:${C.text}">DP / Uang Muka</span><span style="font-size:14px;font-weight:800;color:${C.text}">${fmtRp(inv.dp)}</span></div>` : ''}${inv.bayar > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:10px 14px;background:${C.dark};border-radius:6px"><span style="font-size:13px;font-weight:700;color:${C.text}">Pembayaran</span><span style="font-size:14px;font-weight:800;color:${C.text}">${fmtRp(inv.bayar)}</span></div>` : ''}<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding:12px 14px;background:${C.darker};border-radius:6px;border:2px solid ${C.darkest}"><span style="font-size:14px;font-weight:800;color:${C.soft}">${invEnd(inv).label}</span><span style="font-size:15px;font-weight:900;color:${C.soft}">${fmtRp(invEnd(inv).val)}</span></div>` : '';
 
   const bankLogoEl = (s.bankLogo || s.bankLogoImg) ? bankBadgeHTML(s.bankLogo, 26, s.bankLogoImg) : '';
-  const bankInfo = dpReqBoxHTML(inv) + ((s.bankName || s.bankNo)
+  let bankInfo = dpReqBoxHTML(inv) + ((s.bankName || s.bankNo)
     ? `<div style="margin-top:16px;padding:12px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E5E7EB"><div style="font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Info Pembayaran</div><div style="display:flex;align-items:center;gap:8px"><div style="font-size:13px;color:#374151">${bankLogoEl}</div><div style="font-size:13px;color:#374151">${xss(s.bankName||'')} &nbsp;·&nbsp; <strong style="color:#111827">${xss(s.bankNo||'')}</strong></div></div>${s.bankOwner ? `<div style="font-size:12px;color:#9CA3AF;margin-top:2px">a.n. ${xss(s.bankOwner)}</div>` : ''}${s.bankNote ? `<div style="font-size:12px;color:#6B7280;margin-top:5px;padding-top:5px;border-top:1px solid #E5E7EB;line-height:1.5">${xss(s.bankNote)}</div>` : ''}</div>` : '');
+
+  // QRIS: kotak kecil, gambar max 110px, tinggi menyesuaikan — tidak mengubah layout template
+  const qrisHTML = (/^data:image\//.test(s.qris || ''))
+    ? `<div style="margin-top:12px;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E5E7EB;display:flex;align-items:center;gap:14px;break-inside:avoid"><div style="width:96px;height:96px;flex:none;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden"><img src="${s.qris}" alt="QRIS" style="max-width:100%;max-height:100%;object-fit:contain;display:block"></div><div><div style="font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Bayar via QRIS</div><div style="font-size:12px;color:#6B7280;line-height:1.5">Scan kode QR ini dengan aplikasi e-wallet / mobile banking Anda.</div></div></div>` : '';
+
+  bankInfo += qrisHTML;
 
   const notesRow = inv.notes
     ? `<div style="margin-top:12px;padding:12px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E5E7EB"><div style="font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Catatan</div><div style="font-size:13px;color:#6B7280;line-height:1.5">${xss(inv.notes)}</div></div>` : '';
@@ -7630,6 +7653,7 @@ function buildPreview(inv, targetId = 'invoicePreview') {
           ${s.bankNote ? `<div style="margin-top:3px">${xss(s.bankNote)}</div>` : ''}
         </div>` : ''}
 
+        ${qrisHTML ? `<div style="border-top:1px dashed #A1A1AA;margin:10px 0 8px"></div><div style="text-align:center"><img src="${s.qris}" alt="QRIS" style="width:38%;min-width:90px;max-width:130px;height:auto;display:inline-block"><div style="font-size:10px;color:#52525B;margin-top:2px">Scan untuk bayar (QRIS)</div></div>` : ''}
         ${inv.notes ? `<div style="border-top:1px dashed #A1A1AA;margin:10px 0 8px"></div><div style="font-size:10.5px;color:#52525B;text-align:center;line-height:1.5">${xss(inv.notes)}</div>` : ''}
 
         <div style="border-top:1px dashed #A1A1AA;margin:14px 0 10px"></div>
@@ -9084,6 +9108,20 @@ async function _renderCanvas_OLD() {
     } catch(e){}
   }
 
+  // QRIS (tengah, di antara stempel & tanda tangan; hanya jika muat)
+  if (/^data:image\//.test(s.qris || '') && Y + 72 <= H - 48) {
+    try {
+      const qi = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = s.qris; });
+      if (qi) {
+        const box = 72, r = Math.min(box / qi.width, box / qi.height), qw = qi.width * r, qh = qi.height * r, qx = W / 2 - 20 - qw / 2;
+        ctx.fillStyle = '#fff'; ctx.fillRect(qx - 4, Y - 6, qw + 8, qh + 8);
+        ctx.drawImage(qi, qx, Y - 2, qw, qh);
+        ctx.font = ff(9, 600); ctx.fillStyle = '#9CA3AF'; ctx.textAlign = 'center';
+        ctx.fillText('QRIS', qx + qw / 2, Y + qh + 12);
+      }
+    } catch (e) {}
+  }
+
   // ── FOOTER ───────────────────────────────────────────────────────────────
   const FTR_Y = H - 44;
   ctx.fillStyle = C.soft || '#FEF3C7';
@@ -9909,6 +9947,7 @@ function loadSettingsUI() {
     if (logoPh)   logoPh.style.display = '';
     if (logoScaleRow) logoScaleRow.style.display = 'none';
   }
+  _refreshQrisUI(s.qris);
   // Reset tanda tangan
   setText('signStatus', s.signature ? 'Tanda tangan tersimpan' : '');
 }
@@ -9965,6 +10004,44 @@ function resetWaTemplate() {
 // preview, tapi motong drastis ukuran file kalau user upload foto asli dari HP
 // (yang biasanya 3000-4000px & bisa beberapa MB). Ini yang paling berdampak ke
 // kuota Supabase & localStorage, karena logo diupload base64 apa adanya.
+// ── QRIS: gambar QR pembayaran, tampil otomatis di nota & struk kasir ──
+function _refreshQrisUI(data) {
+  const p = document.getElementById('qrisPrev'), ph = document.getElementById('qrisPh'), d = document.getElementById('qrisDelRow'), t = document.getElementById('qrisTxt');
+  if (p) { if (data) { p.src = data; p.style.display = 'block'; } else { p.removeAttribute('src'); p.style.display = 'none'; } }
+  if (ph) ph.style.display = data ? 'none' : '';
+  if (d) d.style.display = data ? 'block' : 'none';
+  if (t) t.textContent = data ? 'Ketuk untuk ganti gambar QRIS' : 'Ketuk untuk upload gambar QRIS';
+}
+function uploadQris(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 600, sc = Math.min(1, MAX / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * sc)), h = Math.max(1, Math.round(img.height * sc));
+      let data;
+      try {
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        data = c.toDataURL('image/png');
+        if (data.length > 400 * 1024) data = c.toDataURL('image/jpeg', 0.9);
+      } catch (err) { data = e.target.result; }
+      const st = DB.get('settings', {}); st.qris = data; DB.set('settings', st);
+      _refreshQrisUI(data); toast('QRIS disimpan', 'ok');
+    };
+    img.onerror = () => toast('Gagal membaca gambar, coba file lain', 'err');
+    img.src = e.target.result;
+  };
+  reader.onerror = () => toast('Gagal membaca file', 'err');
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+function removeQris() {
+  const st = DB.get('settings', {}); delete st.qris; DB.set('settings', st);
+  _refreshQrisUI(''); toast('QRIS dihapus', 'ok');
+}
+
 const LOGO_MAX_DIM = 480;
 // Ambang ukuran (byte, dari panjang string data-URL) sebelum PNG hasil resize
 // diturunkan lagi jadi JPEG kualitas tinggi — PNG dipertahankan dulu karena
@@ -13061,6 +13138,26 @@ function Esc(cols, small) {
   };
   return o;
 }
+// Ubah gambar QRIS jadi raster ESC/POS (GS v 0), lebar dalam dot (kelipatan 8)
+function qrisRaster(dataUrl, dots) {
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const w = dots, h = Math.max(8, Math.round(im.height * w / im.width));
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        const x = cv.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+        const d = x.getImageData(0, 0, w, h).data, bw = w / 8, out = [0x1d, 0x76, 0x30, 0, bw & 255, bw >> 8, h & 255, h >> 8];
+        for (let r = 0; r < h; r++) for (let b = 0; b < bw; b++) {
+          let v = 0; for (let k = 0; k < 8; k++) { const i = (r * w + b * 8 + k) * 4; if ((d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114) < 140) v |= 0x80 >> k; }
+          out.push(v);
+        }
+        res(out);
+      } catch (e) { res(null); }
+    };
+    im.onerror = () => res(null); im.src = dataUrl;
+  });
+}
 function escBytes(doc, c) {
   const p = PAPERS[c.paper], cols = c.small ? p.colsS : p.cols, all = [];
   const copies = Math.max(1, Math.min(5, c.copies | 0 || 1));
@@ -13088,6 +13185,7 @@ function escBytes(doc, c) {
     });
     e.hr('-');
     e.al(1); (doc.footer || []).forEach(f => wrapTxt(f, cols).forEach(x => e.t(x).nl()));
+    if (doc._qrisRaster) { e.nl().raw(...doc._qrisRaster).nl().t('Scan untuk bayar (QRIS)').nl(); }
     e.al(0).cut(c.cut);
     all.push(...e.b);
   }
@@ -13140,8 +13238,9 @@ function thHtml(doc, p) {
   if (doc.party && doc.party.length) h += '<hr>' + doc.party.filter(m => m[1]).map(m => R(m[0], m[1])).join('');
   h += '<hr>' + (doc.items || []).map(i => `<div class="it"><div class="n">${esc(i.name)}</div>${R(i.qty + ' x ' + i.price, i.total)}${i.note ? `<div class="nt">${esc(i.note)}</div>` : ''}</div>`).join('') + '<hr>';
   h += (doc.totals || []).map(t => (t.big ? '<hr>' : '') + R(t.l, t.v, (t.big ? 'big ' : '') + (t.bold ? 'b' : ''))).join('');
-  h += '<hr><div class="c">' + (doc.footer || []).map(f => esc(f).replace(/\n/g, '<br>')).join('<br>') + '</div></div>';
-  return h;
+  h += '<hr><div class="c">' + (doc.footer || []).map(f => esc(f).replace(/\n/g, '<br>')).join('<br>') + '</div>';
+  if (doc.store.qris) h += `<div class="c" style="margin-top:6px"><img src="${doc.store.qris}" alt="QRIS" style="width:${p === '58' ? '50%' : '42%'};height:auto;display:inline-block"><div style="font-size:.85em">Scan untuk bayar (QRIS)</div></div>`;
+  return h + '</div>';
 }
 function pgHtml(doc, p) {
   const a5 = p === 'a5', fs = a5 ? 9 : 10.5, st = doc.store;
@@ -13155,6 +13254,7 @@ function pgHtml(doc, p) {
   <table><thead><tr><th class="n">#</th><th>DESKRIPSI</th><th class="rt">QTY</th><th class="rt">HARGA</th><th class="rt">JUMLAH</th></tr></thead><tbody>${rows}</tbody></table>
   <div class="tt">${tot}</div>
   ${(doc.footer || []).length ? `<div class="ft">${(doc.footer || []).map(f => esc(f).replace(/\n/g, '<br>')).join('<br>')}</div>` : ''}
+  ${st.qris ? `<div style="margin-top:5mm;display:flex;align-items:center;gap:3mm;break-inside:avoid"><img src="${st.qris}" alt="QRIS" style="width:${a5 ? '24mm' : '30mm'};height:auto"><div style="color:#64748B;font-size:.88em">Bayar via QRIS<br>Scan dengan e-wallet / mobile banking</div></div>` : ''}
   <div class="ns">Dibuat dengan NotaSeru</div></div>`;
 }
 const docHtml = (doc, p) => PAPERS[p].th ? thHtml(doc, p) : pgHtml(doc, p);
@@ -13189,6 +13289,7 @@ async function print(doc, over) {
     return;
   }
   if (c.method === 'system') return sysPrint(docHtml(doc, c.paper), c.paper);
+  if (doc.store && doc.store.qris && !doc._qrisRaster) { try { doc._qrisRaster = await qrisRaster(doc.store.qris, c.paper === '80' ? 256 : 192); } catch (e) {} }
   const bytes = escBytes(doc, c);
   if (c.method === 'rawbt') return rawbt(bytes);
   return bleSend(bytes);
@@ -13276,7 +13377,7 @@ function invoiceDoc(inv) {
   if (inv.sisa > 0) tot.push({ l: 'Sisa tagihan', v: F(inv.sisa), bold: true });
   if (inv.lebih > 0) tot.push({ l: 'Kelebihan', v: F(inv.lebih) });
   return { kind: 'invoice', title: 'INVOICE', drawer: false,
-    store: { name: s.storeName || 'Bisnis Saya', addr: [s.storeAddress, s.storePhone, s.storeEmail].filter(Boolean), logo: /^data:image\/(png|jpe?g|webp|gif)/.test(s.logo || '') ? s.logo : '' },
+    store: { name: s.storeName || 'Bisnis Saya', addr: [s.storeAddress, s.storePhone, s.storeEmail].filter(Boolean), logo: /^data:image\/(png|jpe?g|webp|gif)/.test(s.logo || '') ? s.logo : '', qris: /^data:image\/(png|jpe?g|webp|gif)/.test(s.qris || '') ? s.qris : '' },
     meta: [['No', inv.number], ['Tanggal', fmtDate(inv.date)], ['Status', st]],
     party: [['Pelanggan', (inv.customer || {}).name], ['Telp', (inv.customer || {}).phone], ['Alamat', (inv.customer || {}).address]],
     items: (inv.items || []).filter(i => (i.name || '').trim()).map(i => ({ name: i.name, qty: (i.qty2 > 0 ? i.qty + 'x' + i.qty2 : i.qty) + (i.unit ? ' ' + i.unit : ''), price: F(i.price), total: F(calcItemTotal(i)), note: i.note || '' })),
@@ -13689,7 +13790,7 @@ function receiptHTML(s) {
   ${row('Subtotal', Math.round(s.sub).toLocaleString('id-ID'))}${s.disc ? row('Diskon' + (s.discLbl ? ' ' + s.discLbl : ''), '-' + Math.round(s.disc).toLocaleString('id-ID')) : ''}${s.tax ? row('Pajak ' + s.taxPct + '%', Math.round(s.tax).toLocaleString('id-ID')) : ''}
   ${row('TOTAL', Math.round(s.total).toLocaleString('id-ID'), 'b')}<hr>
   ${row(PAYN[s.pay] || s.pay, Math.round(s.paid).toLocaleString('id-ID'))}${s.pay === 'tunai' ? row('Kembali', Math.round(s.change).toLocaleString('id-ID')) : ''}<hr>
-  <div class="c">${esc(S.cfg.foot || '')}</div></div>`;
+  <div class="c">${esc(S.cfg.foot || '')}</div>${/^data:image\//.test(sets.qris || '') ? `<div class="c" style="margin-top:8px"><img src="${sets.qris}" alt="QRIS" style="width:48%;max-width:140px;height:auto;display:inline-block;background:#fff"><div style="font-size:10.5px">Scan untuk bayar (QRIS)</div></div>` : ''}</div>`;
 }
 let curSale = null;
 function receiptOpen(s, fresh) {
@@ -14028,7 +14129,7 @@ function saleDoc(s) {
   tot.push({ l: 'TOTAL', v: n(s.total), big: true }); tot.push({ l: PAYN[s.pay] || s.pay, v: n(s.paid) });
   if (s.pay === 'tunai') tot.push({ l: 'Kembali', v: n(s.change), bold: true });
   return { kind: 'receipt', title: 'STRUK PENJUALAN', drawer: s.pay === 'tunai',
-    store: { name: storeName(), addr, logo: /^data:image\/(png|jpe?g|webp|gif)/.test(sets.logo || '') ? sets.logo : '' },
+    store: { name: storeName(), addr, logo: /^data:image\/(png|jpe?g|webp|gif)/.test(sets.logo || '') ? sets.logo : '', qris: /^data:image\/(png|jpe?g|webp|gif)/.test(sets.qris || '') ? sets.qris : '' },
     meta: [['No', s.no], ['Tanggal', d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })], ['Kasir', S.cfg.kasir || ''], ['Ket', s.note || '']],
     items: s.items.map(i => ({ name: i.name, qty: i.qty, price: n(i.price), total: n(i.price * i.qty) })), totals: tot, footer: [S.cfg.foot || ''].filter(Boolean) };
 }
